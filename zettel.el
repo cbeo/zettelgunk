@@ -1,3 +1,4 @@
+
 (setq zettel-highlights
       '(("#[^ \n]+" . font-lock-doc-face)
         ("\|[^\n\|]+\|" . font-lock-function-name-face)))
@@ -7,8 +8,11 @@
           (first (last (butlast (split-string fname "[/.]"))))
           "|"))
 
+(defun zettel-all-files ()
+  deft-all-files)
+
 (defun zettel-link-names ()
-  (mapcar #'filename-to-zettel-name deft-all-files))
+  (mapcar #'filename-to-zettel-name (zettel-all-files)))
 
 
 (defun zettel-completion-at-point ()
@@ -24,9 +28,11 @@
     (and (s-starts-with-p "|" trimmed)
          (s-ends-with-p "|" trimmed))))
 
+(defvar zettel-directory "~/deft/")
+
 (defun zettel-link-to-file-path (link)
   (let ((name (string-trim link "[\s\|]+" "[\s\|]+")))
-    (concat deft-directory name ".zettel")))
+    (concat zettel-directory name ".zettel")))
 
 (defun find-zettel-file (thing)
   (when (valid-zettel-note-name-p thing)
@@ -52,7 +58,9 @@
           (terpri)))
       
       (read-only-mode)
+      (use-local-map (copy-keymap (make-sparse-keymap)))
       (local-set-key (kbd "q")  'zettel-dismiss-tags-buffer)
+      (local-set-key (kbd "<return>") 'zettel-jump-to-note)
       (switch-to-buffer zettel-tags-buffer-name))))
 
 
@@ -87,6 +95,23 @@
   (interactive)
   (let ((back (pop zettel-jump-back-list)))
     (if back (find-file back))))
+
+(defun zettel-next-link-in-buffer ()
+  (interactive)
+  (let ((current-point (point))
+        (next-link (search-forward-regexp "\|[^\n\|]+\|" nil t)))
+    (if next-link
+        (goto-char (1- next-link))
+        (goto-char current-point))))
+
+(defun zettel-prev-link-in-buffer ()
+  (interactive)
+  (let ((current-point (point))
+        (next-link (search-backward-regexp "\|[^\n\|]+\|" nil t)))
+    (if next-link
+        (goto-char (1+ next-link))
+        (goto-char current-point))))
+
 
 
 (define-derived-mode zettel-mode fundamental-mode "zettel"
