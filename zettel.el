@@ -75,7 +75,6 @@
 
 
 
-
 (defun zettel-jump-to-note ()
   (interactive)
   (when buffer-file-name 
@@ -127,8 +126,14 @@
   (setq font-lock-defaults '(zettel-highlights))
   (add-hook 'completion-at-point-functions 'zettel-completion-at-point nil 'local))
 
+(defun zettle-mode-config-hook ()
+  ;; so that tags can be slurped up by thing-at-point
+  (modify-syntax-entry ?# "w")
+  (local-set-key (kbd "M-n") 'zettel-next-link-in-buffer)
+  (local-set-key (kbd "M-p") 'zettel-prev-link-in-buffer))
+
 ;; so that the start of tags count as words
-(add-hook 'zettel-mode-hook (lambda () (modify-syntax-entry ?# "w")))
+(add-hook 'zettel-mode-hook 'zettle-mode-config-hook)
 
 
 (add-to-list 'auto-mode-alist '("\\.zettel\\'" . zettel-mode))
