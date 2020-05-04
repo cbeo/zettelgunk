@@ -1,4 +1,9 @@
 
+(defvar zettel-directory "~/zettel/")
+(defvar zettel-tags-buffer-name "*zettel-tags*")
+(defvar zettel-jump-back-list '())
+(defvar zettel-start-file "zettel.zettel")
+
 (setq zettel-highlights
       '(("#[^ \n]+" . font-lock-doc-face)
         ("\|[^\n\|]+\|" . font-lock-function-name-face)))
@@ -9,7 +14,7 @@
           "|"))
 
 (defun zettel-all-files ()
-  deft-all-files)
+  (directory-files zettel-directory t ".zettel$"))
 
 (defun zettel-link-names ()
   (mapcar #'filename-to-zettel-name (zettel-all-files)))
@@ -28,7 +33,6 @@
     (and (s-starts-with-p "|" trimmed)
          (s-ends-with-p "|" trimmed))))
 
-(defvar zettel-directory "~/deft/")
 
 (defun zettel-link-to-file-path (link)
   (let ((name (string-trim link "[\s\|]+" "[\s\|]+")))
@@ -45,7 +49,7 @@
            (buffer-string))))
     (search tag file-string)))
 
-(defvar zettel-tags-buffer-name "*zettel-tags*")
+
 
 (defun zettel-show-notes-by-tag (tag)
   (with-output-to-temp-buffer zettel-tags-buffer-name
@@ -64,14 +68,13 @@
       (switch-to-buffer zettel-tags-buffer-name))))
 
 
-
 (defun zettel-dismiss-tags-buffer ()
   (interactive)
   (when (get-buffer zettel-tags-buffer-name)
     (kill-buffer zettel-tags-buffer-name)))
 
 
-(defvar zettel-jump-back-list '())
+
 
 (defun zettel-jump-to-note ()
   (interactive)
@@ -113,6 +116,11 @@
         (goto-char current-point))))
 
 
+(defun zettel ()
+  (interactive)
+  (let ((val (pop zettel-jump-back-list)))
+    (if val (find-file val)
+      (find-file (concat zettel-directory zettel-start-file)))))
 
 (define-derived-mode zettel-mode fundamental-mode "zettel"
   "mode for navigating my zettelkasten system"
