@@ -18,8 +18,12 @@
           (first (last (butlast (split-string fname "[/.]"))))
           "|"))
 
+(defvar zettel-file-cache nil)
+
 (defun zettel-all-files ()
-  (directory-files zettel-directory t ".zettel$"))
+  (if zettel-file-cache zettel-file-cache
+    (setq zettel-file-cache 
+          (directory-files zettel-directory t ".zettel$"))))
 
 (defun zettel-link-names ()
   (mapcar #'filename-to-zettel-name (zettel-all-files)))
@@ -48,13 +52,12 @@
     (find-file (zettel-link-to-file-path thing))))
 
 (defun zettel-file-contains-tag-p (tag file)
-  (let ((file-string  
-         (with-temp-buffer
-           (insert-file-contents file)
-           (buffer-string))))
-    (search tag file-string)))
-
-
+  (when (file-exists-p file)
+    (let ((file-string  
+           (with-temp-buffer
+             (insert-file-contents file)
+             (buffer-string))))
+      (search tag file-string))))
 
 (defun zettel-show-notes-by-tag (tag)
   (with-output-to-temp-buffer zettel-tags-buffer-name
@@ -70,8 +73,39 @@
       (use-local-map (copy-keymap (make-sparse-keymap)))
       (local-set-key (kbd "q")  'zettel-dismiss-tags-buffer)
       (local-set-key (kbd "<return>") 'zettel-jump-to-note)
+      (local-set-key (kbd "M-n") 'zettel-next-thing-in-buffer)
+      (local-set-key (kbd "M-p") 'zettel-prev-thing-in-buffer)
       (switch-to-buffer zettel-tags-buffer-name))))
 
+(defun zettel-file-links-here (here file)
+  (when (file-exists-p file)
+    (let ((file-string
+           (with-temp-buffer
+             (insert-file-contents file)
+             (buffer-string))))
+      (search here file-string))))
+
+(defun zettel-show-notes-linking-here (here-name)
+  (with-output-to-temp-buffer zettel-tags-buffer-name
+    (with-current-buffer zettel-tags-buffer-name
+      (zettel-mode)
+      (dolist (name (zettel-link-names))
+        (when (zettel-file-links-here here-name (zettel-link-to-file-path name))
+          (princ name)
+          (terpri)))
+      (read-only-mode)
+      (use-local-map (copy-keymap (make-sparse-keymap)))
+      (local-set-key (kbd "q")  'zettel-dismiss-tags-buffer)
+      (local-set-key (kbd "<return>") 'zettel-jump-to-note)
+      (local-set-key (kbd "M-n") 'zettel-next-thing-in-buffer)
+      (local-set-key (kbd "M-p") 'zettel-prev-thing-in-buffer)
+      (switch-to-buffer zettel-tags-buffer-name))))
+
+(defun zettel-browse-notes-linking-here ()
+  (interactive)
+  (when buffer-file-name
+    (let ((here-name (filename-to-zettel-name buffer-file-name)))
+      (zettel-show-notes-linking-here here-name))))
 
 (defun zettel-dismiss-tags-buffer ()
   (interactive)
@@ -83,9 +117,11 @@
 (defun zettel-jump-to-note ()
   (interactive)
   (when buffer-file-name 
-    (push buffer-file-name zettel-jump-back-list))
+    (push buffer-file-name zettel-jump-back-list)
+    (save-buffer))
   (let ((thing (thing-at-point 'symbol t)))
     (find-zettel-file thing)
+    (setq zettel-file-cache nil) ; i'm clearing this here b/c it seems like an appropriate time
     (zettel-dismiss-tags-buffer)))
 
 (defun zettel-tag-p (str)
