@@ -4,6 +4,11 @@
 (defvar zettel-jump-back-list '())
 (defvar zettel-start-file "zettel.zettel")
 
+(defvar zettel-link-regex)
+(setq zettel-link-regex "\|[a-zA-Z\-0-9\_]+\|")
+(defvar zettel-tag-regex)
+(setq zettel-tag-regex "#[a-zA-Z0-9]+")
+
 (setq zettel-highlights
       '(("#[^ \n]+" . font-lock-doc-face)
         ("\|[^\n\|]+\|" . font-lock-function-name-face)))
@@ -98,21 +103,50 @@
   (let ((back (pop zettel-jump-back-list)))
     (if back (find-file back))))
 
-(defun zettel-next-link-in-buffer ()
-  (interactive)
+(defun zettel-find-next-link-in-buffer ()
   (let ((current-point (point))
-        (next-link (search-forward-regexp "\|[^\n\|]+\|" nil t)))
-    (if next-link
-        (goto-char (1- next-link))
-        (goto-char current-point))))
+        (next-link (search-forward-regexp zettel-link-regex nil t)))
+    (goto-char current-point)
+    next-link))
 
-(defun zettel-prev-link-in-buffer ()
-  (interactive)
+(defun zettel-find-prev-link-in-buffer ()
   (let ((current-point (point))
-        (next-link (search-backward-regexp "\|[^\n\|]+\|" nil t)))
-    (if next-link
-        (goto-char (1+ next-link))
-        (goto-char current-point))))
+        (next-link (search-backward-regexp zettel-link-regex nil t)))
+    (goto-char current-point)
+    next-link))
+
+(defun zettel-find-next-tag-in-buffer ()
+  (let ((current-point (point))
+        (next-tag (search-forward-regexp zettel-tag-regex nil t)))
+    (goto-char current-point)
+    next-tag))
+
+(defun zettel-find-prev-tag-in-buffer ()
+  (let ((current-point (point))
+        (next-tag (search-backward-regexp zettel-tag-regex nil t)))
+    (goto-char current-point)
+    next-tag))
+
+
+(defun zettel-next-thing-in-buffer ()
+  (interactive)
+  (let ((next-tag (zettel-find-next-tag-in-buffer))
+        (next-link (zettel-find-next-link-in-buffer)))
+    (cond
+     ((and next-tag next-link)
+      (goto-char (min next-tag next-link)))
+     (next-tag (goto-char next-tag))
+     (next-link (goto-char next-link)))))
+
+(defun zettel-prev-thing-in-buffer ()
+  (interactive)
+  (let ((prev-tag (zettel-find-prev-tag-in-buffer))
+        (prev-link (zettel-find-prev-link-in-buffer)))
+    (cond
+     ((and prev-tag prev-link)
+      (goto-char (max prev-tag prev-link)))
+     (prev-tag (goto-char prev-tag))
+     (prev-link (goto-char prev-link)))))
 
 
 (defun zettel ()
@@ -126,14 +160,14 @@
   (setq font-lock-defaults '(zettel-highlights))
   (add-hook 'completion-at-point-functions 'zettel-completion-at-point nil 'local))
 
-(defun zettle-mode-config-hook ()
+(defun zettel-mode-config-hook ()
   ;; so that tags can be slurped up by thing-at-point
   (modify-syntax-entry ?# "w")
-  (local-set-key (kbd "M-n") 'zettel-next-link-in-buffer)
-  (local-set-key (kbd "M-p") 'zettel-prev-link-in-buffer))
+  (local-set-key (kbd "M-n") 'zettel-next-thing-in-buffer)
+  (local-set-key (kbd "M-p") 'zettel-prev-thing-in-buffer))
 
 ;; so that the start of tags count as words
-(add-hook 'zettel-mode-hook 'zettle-mode-config-hook)
+(add-hook 'zettel-mode-hook 'zettel-mode-config-hook)
 
 
 (add-to-list 'auto-mode-alist '("\\.zettel\\'" . zettel-mode))
