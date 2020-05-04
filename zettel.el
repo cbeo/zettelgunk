@@ -63,7 +63,8 @@
   (with-output-to-temp-buffer zettel-tags-buffer-name
     (with-current-buffer zettel-tags-buffer-name
       (zettel-mode)
-      
+      (princ (concat "Notes tagged with " tag))
+      (terpri)
       (dolist (name (zettel-link-names))
         (when (zettel-file-contains-tag-p tag (zettel-link-to-file-path name))
           (princ name)
@@ -89,6 +90,8 @@
   (with-output-to-temp-buffer zettel-tags-buffer-name
     (with-current-buffer zettel-tags-buffer-name
       (zettel-mode)
+      (princ (concat "Notes that link to " here-name))
+      (terpri)
       (dolist (name (zettel-link-names))
         (when (zettel-file-links-here here-name (zettel-link-to-file-path name))
           (princ name)
