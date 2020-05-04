@@ -184,6 +184,11 @@
      (prev-tag (goto-char prev-tag))
      (prev-link (goto-char prev-link)))))
 
+(defun zettel-spanking-new-note (new-note)
+  (interactive "sNew Note Called: ")
+  (let ((new-note (string-trim (replace-regexp-in-string "[\s.\s-]+" "-" new-note)
+                               "-" "-")))
+    (find-file (concat zettel-directory "/" new-note ".zettel"))))
 
 (defun zettel ()
   (interactive)
