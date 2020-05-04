@@ -163,12 +163,12 @@
 (defun zettel-mode-config-hook ()
   ;; so that tags can be slurped up by thing-at-point
   (modify-syntax-entry ?# "w")
+  (modify-syntax-entry ?- "w")
   (local-set-key (kbd "M-n") 'zettel-next-thing-in-buffer)
   (local-set-key (kbd "M-p") 'zettel-prev-thing-in-buffer))
 
-;; so that the start of tags count as words
-(add-hook 'zettel-mode-hook 'zettel-mode-config-hook)
 
+(add-hook 'zettel-mode-hook 'zettel-mode-config-hook)
 
 (add-to-list 'auto-mode-alist '("\\.zettel\\'" . zettel-mode))
 
