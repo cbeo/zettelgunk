@@ -10,8 +10,8 @@
 (setq zettel-tag-regex "#[a-zA-Z0-9]+")
 
 (setq zettel-highlights
-      '(("#[^ \n]+" . font-lock-doc-face)
-        ("\|[^\n\|]+\|" . font-lock-function-name-face)))
+      '((zettel-tag-regex . font-lock-doc-face)
+        (zettel-link-regex . font-lock-function-name-face)))
 
 (defun filename-to-zettel-name (fname)
   (concat "|"
@@ -186,6 +186,10 @@
       (goto-char (max prev-tag prev-link)))
      (prev-tag (goto-char prev-tag))
      (prev-link (goto-char prev-link)))))
+
+(defun zettel-search-for-tag (tag)
+  (interactive "sTags: ")
+  (zettel-show-notes-by-tag tag))
 
 (defun zettel-spanking-new-note (new-note)
   (interactive "sNew Note Called: ")
