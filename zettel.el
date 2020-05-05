@@ -56,58 +56,39 @@
     (find-file (zettel-link-to-file-path thing))
     t))
 
-(defun zettel-file-contains-tag-p (tag file)
+(defun zettel-file-contains-p (thing file)
   (when (file-exists-p file)
-    (let ((file-string  
-           (with-temp-buffer
-             (insert-file-contents file)
-             (buffer-string))))
-      (search tag file-string))))
+    (let ((file-string (zettel-file-to-string file)))
+      (search thing file-string))))
+
+(defun zettel-show-notes-by (thing file-pred  message)
+  "FILE-PRED should take two arguments, the first is 'thing' and the second is a file path."
+  (with-output-to-temp-buffer zettel-tags-buffer-name
+    (with-current-buffer zettel-tags-buffer-name
+      (zettel-mode)
+      (princ (concat message thing))
+      (terpri)
+      (dolist (name (zettel-link-names))
+        (when (funcall file-pred thing (zettel-link-to-file-path name))
+          (princ name)
+          (terpri)))
+      (read-only-mode)
+      (use-local-map (copy-keymap (make-sparse-keymap)))
+      (local-set-key (kbd "q")  'zettel-dismiss-tags-buffer)
+      (local-set-key (kbd "<return>") 'zettel-jump-to-note)
+      (local-set-key (kbd "M-n") 'zettel-next-thing-in-buffer)
+      (local-set-key (kbd "M-p") 'zettel-prev-thing-in-buffer)
+      (switch-to-buffer zettel-tags-buffer-name)))  )
 
 (defun zettel-show-notes-by-tag (tag)
-  (with-output-to-temp-buffer zettel-tags-buffer-name
-    (with-current-buffer zettel-tags-buffer-name
-      (zettel-mode)
-      (princ (concat "Notes tagged with " tag))
-      (terpri)
-      (dolist (name (zettel-link-names))
-        (when (zettel-file-contains-tag-p tag (zettel-link-to-file-path name))
-          (princ name)
-          (terpri)))
-      
-      (read-only-mode)
-      (use-local-map (copy-keymap (make-sparse-keymap)))
-      (local-set-key (kbd "q")  'zettel-dismiss-tags-buffer)
-      (local-set-key (kbd "<return>") 'zettel-jump-to-note)
-      (local-set-key (kbd "M-n") 'zettel-next-thing-in-buffer)
-      (local-set-key (kbd "M-p") 'zettel-prev-thing-in-buffer)
-      (switch-to-buffer zettel-tags-buffer-name))))
+  (zettel-show-notes-by tag 'zettel-file-contains-p "Notes tagged with "))
 
-(defun zettel-file-links-here (here file)
-  (when (file-exists-p file)
-    (let ((file-string
-           (with-temp-buffer
-             (insert-file-contents file)
-             (buffer-string))))
-      (search here file-string))))
+(defun zettel-file-to-string (file)
+  (with-temp-buffer (insert-file-contents file)
+                    (buffer-string)))
 
 (defun zettel-show-notes-linking-here (here-name)
-  (with-output-to-temp-buffer zettel-tags-buffer-name
-    (with-current-buffer zettel-tags-buffer-name
-      (zettel-mode)
-      (princ (concat "Notes that link to " here-name))
-      (terpri)
-      (dolist (name (zettel-link-names))
-        (when (zettel-file-links-here here-name (zettel-link-to-file-path name))
-          (princ name)
-          (terpri)))
-      (read-only-mode)
-      (use-local-map (copy-keymap (make-sparse-keymap)))
-      (local-set-key (kbd "q")  'zettel-dismiss-tags-buffer)
-      (local-set-key (kbd "<return>") 'zettel-jump-to-note)
-      (local-set-key (kbd "M-n") 'zettel-next-thing-in-buffer)
-      (local-set-key (kbd "M-p") 'zettel-prev-thing-in-buffer)
-      (switch-to-buffer zettel-tags-buffer-name))))
+  (zettel-show-notes-by here-name 'zettel-file-contains-p "Notes that linke to "))
 
 (defun zettel-browse-notes-linking-here ()
   (interactive)
