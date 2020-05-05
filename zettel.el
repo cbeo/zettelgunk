@@ -38,9 +38,10 @@
 
 
 (defun valid-zettel-note-name-p (string)
-  (let ((trimmed (string-trim string)))
-    (and (s-starts-with-p "|" trimmed)
-         (s-ends-with-p "|" trimmed))))
+  (and string 
+       (let ((trimmed (string-trim string)))
+         (and (s-starts-with-p "|" trimmed)
+              (s-ends-with-p "|" trimmed)))))
 
 
 (defun zettel-link-to-file-path (link)
@@ -49,7 +50,11 @@
 
 (defun find-zettel-file (thing)
   (when (valid-zettel-note-name-p thing)
-    (find-file (zettel-link-to-file-path thing))))
+    (when buffer-file-name 
+      (push buffer-file-name zettel-jump-back-list)
+      (save-buffer))
+    (find-file (zettel-link-to-file-path thing))
+    t))
 
 (defun zettel-file-contains-tag-p (tag file)
   (when (file-exists-p file)
@@ -116,16 +121,13 @@
     (kill-buffer zettel-tags-buffer-name)))
 
 
-
 (defun zettel-jump-to-note ()
   (interactive)
-  (when buffer-file-name 
-    (push buffer-file-name zettel-jump-back-list)
-    (save-buffer))
   (let ((thing (thing-at-point 'symbol t)))
-    (find-zettel-file thing)
-    (setq zettel-file-cache nil) ; i'm clearing this here b/c it seems like an appropriate time
-    (zettel-dismiss-tags-buffer)))
+    (when (find-zettel-file thing)
+      (setq zettel-file-cache nil) ; i'm clearing this here b/c it seems like an appropriate time
+      (zettel-dismiss-tags-buffer)
+      t)))
 
 (defun zettel-tag-p (str)
   (s-starts-with-p "#" str))
@@ -133,9 +135,9 @@
 (defun zettel-browse-tag-at-point ()
   (interactive)
   (let ((thing (thing-at-point 'word t)))
-    (print thing)
     (when (zettel-tag-p thing)
-      (zettel-show-notes-by-tag thing))))
+      (zettel-show-notes-by-tag thing)
+      t)))
 
 (defun zettel-jump-back ()
   (interactive)
@@ -208,10 +210,16 @@
   (setq font-lock-defaults '(zettel-highlights))
   (add-hook 'completion-at-point-functions 'zettel-completion-at-point nil 'local))
 
+(defun zettel-follow-or-insert-newline ()
+  (interactive)
+  (unless (or (zettel-jump-to-note) (zettel-browse-tag-at-point))
+    (newline)))
+
 (defun zettel-mode-config-hook ()
   ;; so that tags can be slurped up by thing-at-point
   (modify-syntax-entry ?# "w")
   (modify-syntax-entry ?- "w")
+  (local-set-key (kbd "RET") 'zettel-follow-or-insert-newline)
   (local-set-key (kbd "M-n") 'zettel-next-thing-in-buffer)
   (local-set-key (kbd "M-p") 'zettel-prev-thing-in-buffer))
 
