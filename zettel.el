@@ -7,11 +7,11 @@
 (defvar zettel-link-regex)
 (setq zettel-link-regex "\|[a-zA-Z\-0-9\_]+\|")
 (defvar zettel-tag-regex)
-(setq zettel-tag-regex "#[a-zA-Z0-9]+")
+(setq zettel-tag-regex "#[a-zA-Z0-9\-]+")
 
 (setq zettel-highlights
-      '((zettel-tag-regex . font-lock-doc-face)
-        (zettel-link-regex . font-lock-function-name-face)))
+      `((,zettel-tag-regex . font-lock-doc-face)
+        (,zettel-link-regex . font-lock-function-name-face)))
 
 (defun filename-to-zettel-name (fname)
   (concat "|"
