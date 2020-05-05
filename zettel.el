@@ -88,7 +88,7 @@
                     (buffer-string)))
 
 (defun zettel-show-notes-linking-here (here-name)
-  (zettel-show-notes-by here-name 'zettel-file-contains-p "Notes that linke to "))
+  (zettel-show-notes-by here-name 'zettel-file-contains-p "Notes that link to "))
 
 (defun zettel-browse-notes-linking-here ()
   (interactive)
