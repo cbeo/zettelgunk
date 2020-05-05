@@ -189,8 +189,8 @@
      (prev-tag (goto-char prev-tag))
      (prev-link (goto-char prev-link)))))
 
-(defun zettel-search-for-tag (tag)
-  (interactive "sTags: ")
+(defun zettel-search-notes (tag)
+  (interactive "sSearch: ")
   (zettel-show-notes-by-tag tag))
 
 (defun zettel-spanking-new-note (new-note)
