@@ -170,9 +170,9 @@
      (prev-tag (goto-char prev-tag))
      (prev-link (goto-char prev-link)))))
 
-(defun zettel-search-notes (tag)
+(defun zettel-search-notes (term)
   (interactive "sSearch: ")
-  (zettel-show-notes-by-tag tag))
+  (zettel-show-notes-by term 'zettel-file-contains-p "Notes containing "))
 
 (defun zettel-spanking-new-note (new-note)
   (interactive "sNew Note Called: ")
