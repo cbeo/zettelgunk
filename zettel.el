@@ -39,8 +39,11 @@
 (defun zettel-all-tags ()
   (if zettel-tag-cache zettel-tag-cache
     (setq zettel-tag-cache
-          (apply 'append
-                 (mapcar 'zettel-tags-in-file  (zettel-all-files))))))
+          (sort (remove-duplicates
+                 (apply 'append
+                        (mapcar 'zettel-tags-in-file  (zettel-all-files)))
+                 :test 'equal)
+                'string-lessp))))
 
 (defun zettel-link-names ()
   (mapcar #'filename-to-zettel-name (zettel-all-files)))
@@ -205,6 +208,25 @@
   (let ((new-note (string-trim (replace-regexp-in-string "[\s.\s-]+" "-" new-note)
                                "-" "-")))
     (find-file (concat zettel-directory "/" new-note ".zettel"))))
+
+(defun zettel-browse-tags ()
+  (interactive)
+  (with-output-to-temp-buffer zettel-tags-buffer-name
+    (with-current-buffer zettel-tags-buffer-name
+      (zettel-mode)
+      (princ "Zettelgunk Tags: ")
+      (terpri)
+      (dolist (tag (zettel-all-tags))
+        (princ tag)
+        (terpri))
+      
+      (read-only-mode)
+      (use-local-map (copy-keymap (make-sparse-keymap)))
+      (local-set-key (kbd "q")  'zettel-dismiss-tags-buffer)
+      (local-set-key (kbd "<return>") 'zettel-follow-or-insert-newline)
+      (local-set-key (kbd "M-n") 'zettel-next-thing-in-buffer)
+      (local-set-key (kbd "M-p") 'zettel-prev-thing-in-buffer)
+      (switch-to-buffer zettel-tags-buffer-name))))
 
 (defun zettel ()
   (interactive)
