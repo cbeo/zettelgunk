@@ -23,18 +23,44 @@
 (defun zettel-all-files ()
   (if zettel-file-cache zettel-file-cache
     (setq zettel-file-cache 
-          (directory-files zettel-directory t ".zettel$"))))
+          (directory-files zettel-directory t "^[^\.\#].+zettel$"))))
+
+(defun zettel-all-matches-in-string (regex string &optional acc start)
+  (let ((match (string-match regex string (if start start 0))))
+    (if match (zettel-all-matches-in-string regex string
+                                            (cons (match-string 0 string) acc)
+                                            (1+ match))
+      acc)))
+
+(defun zettel-tags-in-file (file)
+  (zettel-all-matches-in-string zettel-tag-regex (zettel-file-to-string file)))
+
+(defvar zettel-tag-cache nil)
+(defun zettel-all-tags ()
+  (if zettel-tag-cache zettel-tag-cache
+    (setq zettel-tag-cache
+          (apply 'append
+                 (mapcar 'zettel-tags-in-file  (zettel-all-files))))))
 
 (defun zettel-link-names ()
   (mapcar #'filename-to-zettel-name (zettel-all-files)))
 
+(defun zettel-clear-caches ()
+  (setq zettel-tag-cache nil)
+  (setq zettel-file-cache nil)
+  (setq zettel-completion-cache nil))
 
+(defvar zettel-completion-cache nil)
 (defun zettel-completion-at-point ()
   (interactive)
   (let* ((bds (bounds-of-thing-at-point 'symbol))
          (start (car bds))
-         (end (cdr bds)))
-    (list start end (zettel-link-names) . nil)))
+         (end (cdr bds))
+         (completions (if zettel-completion-cache zettel-completion-cache
+                        (setq zettel-completion-cache
+                              (append (zettel-link-names)
+                                      (zettel-all-tags))))))
+    (list start end completions . nil)))
 
 
 (defun valid-zettel-note-name-p (string)
@@ -106,7 +132,7 @@
   (interactive)
   (let ((thing (thing-at-point 'symbol t)))
     (when (find-zettel-file thing)
-      (setq zettel-file-cache nil) ; i'm clearing this here b/c it seems like an appropriate time
+      (zettel-clear-caches)
       (zettel-dismiss-tags-buffer)
       t)))
 
