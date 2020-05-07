@@ -1,7 +1,13 @@
 
+
+
+
 You need to set the value of ~zettel-directory~ to someplace writable
 by emacs, it is set to =~/zettel/= by default.  You need to include
 the trailing slash.
+
+Notes are plain text files.  You can make links to
+other notes |that-look-like-this|. You can make tags #like-this.
 
 Here are the commands that you'll want to bind to suit your needs:
 
@@ -26,4 +32,6 @@ Tags an Note Names should autocomplete as you type them.
 I have bound =M-n= to ~zettel-next-thing-in-buffer~ and =M-p= to
 ~zettel-prev-thing-in-buffer~.  Each of these will advance the cursor
 to the next or previous link in the buffer, respectively.
+
+
 
