@@ -135,7 +135,6 @@
   (interactive)
   (let ((thing (thing-at-point 'symbol t)))
     (when (find-zettel-file thing)
-      (zettel-clear-caches)
       (zettel-dismiss-tags-buffer)
       t)))
 
@@ -237,6 +236,7 @@
 (define-derived-mode zettel-mode fundamental-mode "zettel"
   "mode for navigating my zettelkasten system"
   (setq font-lock-defaults '(zettel-highlights))
+  (add-hook 'after-save-hook 'zettel-clear-caches nil 'local )
   (add-hook 'completion-at-point-functions 'zettel-completion-at-point nil 'local))
 
 (defun zettel-follow-or-insert-newline ()
