@@ -1,7 +1,7 @@
 
 (defvar zettel-directory "~/zettel/")
 (defvar zettel-tags-buffer-name "*zettel-tags*")
-(defvar zettel-jump-back-list '())
+(defvar zettel-history '())
 (defvar zettel-start-file "zettel.zettel")
 
 (defvar zettel-link-regex)
@@ -77,11 +77,15 @@
   (let ((name (string-trim link "[\s\|]+" "[\s\|]+")))
     (concat zettel-directory name ".zettel")))
 
+(defun zettel-push-to-history ()
+  (when (and  buffer-file-name
+              (not (equal buffer-file-name (car zettel-history)))) ; prevent dups
+    (push buffer-file-name zettel-history)
+    (save-buffer)))
+
 (defun find-zettel-file (thing)
   (when (valid-zettel-note-name-p thing)
-    (when buffer-file-name 
-      (push buffer-file-name zettel-jump-back-list)
-      (save-buffer))
+    (zettel-push-to-history)
     (find-file (zettel-link-to-file-path thing))
     t))
 
@@ -122,6 +126,7 @@
 (defun zettel-browse-notes-linking-here ()
   (interactive)
   (when buffer-file-name
+    (zettel-push-to-history)
     (let ((here-name (filename-to-zettel-name buffer-file-name)))
       (zettel-show-notes-linking-here here-name))))
 
@@ -143,6 +148,7 @@
 
 (defun zettel-browse-tag-at-point ()
   (interactive)
+  (zettel-push-to-history)
   (let ((thing (thing-at-point 'word t)))
     (when (zettel-tag-p thing)
       (zettel-show-notes-by-tag thing)
@@ -150,7 +156,7 @@
 
 (defun zettel-jump-back ()
   (interactive)
-  (let ((back (pop zettel-jump-back-list)))
+  (let ((back (pop zettel-history)))
     (if back (find-file back))))
 
 (defun zettel-find-next-link-in-buffer ()
@@ -229,7 +235,7 @@
 
 (defun zettel ()
   (interactive)
-  (let ((val (pop zettel-jump-back-list)))
+  (let ((val (pop zettel-history)))
     (if val (find-file val)
       (find-file (concat zettel-directory zettel-start-file)))))
 
