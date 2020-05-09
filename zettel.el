@@ -251,7 +251,7 @@
 
 (defun zettel-follow-or-insert-newline ()
   (interactive)
-  (unless (or (zettel-jump-to-note) (zettel-browse-tag-at-point) (browse-url-at-point))
+  (unless (or (zettel-jump-to-note) (zettel-browse-tag-at-point) (ignore-errors (browse-url-at-point)))
     (newline)))
 
 (defun zettel-mode-config-hook ()
