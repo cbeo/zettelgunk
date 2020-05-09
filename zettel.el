@@ -8,10 +8,14 @@
 (setq zettel-link-regex "\|[a-zA-Z\-0-9\_]+\|")
 (defvar zettel-tag-regex)
 (setq zettel-tag-regex "#[a-zA-Z0-9\-]+")
+(defvar zettel-http-url-regex)
+(setq zettel-http-url-regex "https?://[^\s\n]+")
+
 
 (setq zettel-highlights
       `((,zettel-tag-regex . font-lock-doc-face)
-        (,zettel-link-regex . font-lock-function-name-face)))
+        (,zettel-link-regex . font-lock-function-name-face)
+        (,zettel-http-url-regex . font-lock-reference-face)))
 
 (defun filename-to-zettel-name (fname)
   (concat "|"
@@ -247,7 +251,7 @@
 
 (defun zettel-follow-or-insert-newline ()
   (interactive)
-  (unless (or (zettel-jump-to-note) (zettel-browse-tag-at-point))
+  (unless (or (zettel-jump-to-note) (zettel-browse-tag-at-point) (browse-url-at-point))
     (newline)))
 
 (defun zettel-mode-config-hook ()
