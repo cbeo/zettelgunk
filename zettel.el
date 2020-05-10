@@ -10,12 +10,15 @@
 (setq zettel-tag-regex "#[a-zA-Z0-9\-]+")
 (defvar zettel-http-url-regex)
 (setq zettel-http-url-regex "https?://[^\s\n]+")
+(defvar zettel-quoted-regex)
+(setq zettel-quoted-regex "^\> .+")
 
 
 (setq zettel-highlights
       `((,zettel-tag-regex . font-lock-doc-face)
         (,zettel-link-regex . font-lock-function-name-face)
-        (,zettel-http-url-regex . font-lock-reference-face)))
+        (,zettel-http-url-regex . font-lock-reference-face)
+        (,zettel-quoted-regex . font-lock-preprocessor-face)))
 
 (defun filename-to-zettel-name (fname)
   (concat "|"
