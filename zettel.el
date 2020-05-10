@@ -15,10 +15,11 @@
 
 
 (setq zettel-highlights
-      `((,zettel-tag-regex . font-lock-doc-face)
+      `((,zettel-quoted-regex . font-lock-preprocessor-face)
+        (,zettel-tag-regex . font-lock-doc-face)
         (,zettel-link-regex . font-lock-function-name-face)
         (,zettel-http-url-regex . font-lock-reference-face)
-        (,zettel-quoted-regex . font-lock-preprocessor-face)))
+        ))
 
 (defun filename-to-zettel-name (fname)
   (concat "|"
