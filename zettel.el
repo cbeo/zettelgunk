@@ -249,9 +249,15 @@
   (add-hook 'after-save-hook 'zettel-clear-caches nil 'local )
   (add-hook 'completion-at-point-functions 'zettel-completion-at-point nil 'local))
 
+(defun zettel-browse-url-at-point ()
+  (interactive)
+  (let ((url (thing-at-point 'url 't)))
+    (when (string-prefix-p "http" url t)
+      (browse-url url))))
+
 (defun zettel-follow-or-insert-newline ()
   (interactive)
-  (unless (or (zettel-jump-to-note) (zettel-browse-tag-at-point) (ignore-errors (browse-url-at-point)))
+  (unless (or (zettel-jump-to-note) (zettel-browse-tag-at-point)  (zettel-browse-url-at-point))
     (newline)))
 
 (defun zettel-mode-config-hook ()
