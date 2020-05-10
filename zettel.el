@@ -10,13 +10,10 @@
 (setq zettel-tag-regex "#[a-zA-Z0-9\-]+")
 (defvar zettel-http-url-regex)
 (setq zettel-http-url-regex "https?://[^\s\n]+")
-(defvar zettel-quoted-regex)
-(setq zettel-quoted-regex "^\> .+")
 
 
 (setq zettel-highlights
-      `((,zettel-quoted-regex . font-lock-preprocessor-face)
-        (,zettel-tag-regex . font-lock-doc-face)
+      `((,zettel-tag-regex . font-lock-doc-face)
         (,zettel-link-regex . font-lock-function-name-face)
         (,zettel-http-url-regex . font-lock-reference-face)
         ))
@@ -253,6 +250,8 @@
   (add-hook 'after-save-hook 'zettel-clear-caches nil 'local )
   (add-hook 'completion-at-point-functions 'zettel-completion-at-point nil 'local))
 
+
+
 (defun zettel-browse-url-at-point ()
   (interactive)
   (let ((url (thing-at-point 'url 't)))
@@ -268,9 +267,13 @@
   ;; so that tags can be slurped up by thing-at-point
   (modify-syntax-entry ?# "w")
   (modify-syntax-entry ?- "w")
+  (modify-syntax-entry ?\" "w")
+  (modify-syntax-entry ?\> "<")
+  (modify-syntax-entry ?\n ">")
   (local-set-key (kbd "RET") 'zettel-follow-or-insert-newline)
   (local-set-key (kbd "M-n") 'zettel-next-thing-in-buffer)
   (local-set-key (kbd "M-p") 'zettel-prev-thing-in-buffer))
+
 
 
 (add-hook 'zettel-mode-hook 'zettel-mode-config-hook)
