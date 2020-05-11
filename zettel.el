@@ -104,7 +104,7 @@
   (with-output-to-temp-buffer zettel-tags-buffer-name
     (with-current-buffer zettel-tags-buffer-name
       (zettel-mode)
-      (princ (concat message thing))
+      (princ message)
       (terpri)
       (dolist (name (zettel-link-names))
         (when (funcall file-pred thing (zettel-link-to-file-path name))
@@ -119,14 +119,30 @@
       (switch-to-buffer zettel-tags-buffer-name)))  )
 
 (defun zettel-show-notes-by-tag (tag)
-  (zettel-show-notes-by tag 'zettel-file-contains-p "Notes tagged with "))
+  (zettel-show-notes-by tag 'zettel-file-contains-p (concat  "Notes tagged with " tag)))
 
 (defun zettel-file-to-string (file)
   (with-temp-buffer (insert-file-contents file)
                     (buffer-string)))
 
+(defun zettel-file-newer-than-date-p (date file)
+  (time-less-p date
+               (file-attribute-modification-time
+                (file-attributes file))))
+
+(defun zettel-show-notes-since (date)
+  (zettel-show-notes-by date
+                        'zettel-file-newer-than-date-p
+                        (concat "Notes newer than " (current-time-string date))))
+
+(defun zettel-browse-notes-days-ago (n)
+  (interactive "nDays Back: ")
+  (let ((last-week (seconds-to-time (- (float-time (current-time))
+                                       (* n 24 60 60)))))
+    (zettel-show-notes-since last-week)))
+
 (defun zettel-show-notes-linking-here (here-name)
-  (zettel-show-notes-by here-name 'zettel-file-contains-p "Notes that link to "))
+  (zettel-show-notes-by here-name 'zettel-file-contains-p (concat "Notes that link to " here-name)))
 
 (defun zettel-browse-notes-linking-here ()
   (interactive)
