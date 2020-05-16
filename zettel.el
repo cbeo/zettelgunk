@@ -263,6 +263,7 @@
 (define-derived-mode zettel-mode fundamental-mode "zettel"
   "mode for navigating my zettelkasten system"
   (setq font-lock-defaults '(zettel-highlights))
+  (setq comment-start "> ")
   (add-hook 'after-save-hook 'zettel-clear-caches nil 'local )
   (add-hook 'completion-at-point-functions 'zettel-completion-at-point nil 'local))
 
