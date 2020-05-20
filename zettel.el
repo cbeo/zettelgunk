@@ -5,7 +5,7 @@
 (defvar zettel-start-file "zettel.zettel")
 
 (defvar zettel-link-regex)
-(setq zettel-link-regex "\|[a-zA-Z\-0-9\_]+\|")
+(setq zettel-link-regex "\|[a-zA-Z\-0-9\_\.]+\|")
 (defvar zettel-tag-regex)
 (setq zettel-tag-regex "#[a-zA-Z0-9\-]+")
 (defvar zettel-http-url-regex)
@@ -18,10 +18,14 @@
         (,zettel-http-url-regex . font-lock-reference-face)
         ))
 
-(defun filename-to-zettel-name (fname)
-  (concat "|"
-          (first (last (butlast (split-string fname "[/.]"))))
-          "|"))
+
+(defun filename-to-zettel-name (path)
+  (let* ((fname (first (last (split-string path "[/]"))))
+         (less-extension (subseq fname 0 (- (length fname)
+                                            (1+ (position ?. (reverse fname)))))))
+    (concat "|"
+            less-extension
+            "|")))
 
 (defvar zettel-file-cache nil)
 
@@ -284,6 +288,7 @@
   ;; so that tags can be slurped up by thing-at-point
   (modify-syntax-entry ?# "w")
   (modify-syntax-entry ?- "w")
+  (modify-syntax-entry ?. "w")
   (modify-syntax-entry ?\" "w")
   (modify-syntax-entry ?\> "<")
   (modify-syntax-entry ?\n ">")
