@@ -160,7 +160,6 @@
   (when (get-buffer zettel-tags-buffer-name)
     (kill-buffer zettel-tags-buffer-name)))
 
-
 (defun zettel-jump-to-note ()
   (interactive)
   (let ((thing (thing-at-point 'symbol t)))
@@ -239,24 +238,19 @@
                                "-" "-")))
     (find-file (concat zettel-directory "/" new-note ".zettel"))))
 
-(defun zettel-browse-tags ()
-  (interactive)
-  (with-output-to-temp-buffer zettel-tags-buffer-name
-    (with-current-buffer zettel-tags-buffer-name
-      (zettel-mode)
-      (princ "Zettelgunk Tags: ")
-      (terpri)
-      (dolist (tag (zettel-all-tags))
-        (princ tag)
-        (terpri))
-      
-      (read-only-mode)
-      (use-local-map (copy-keymap (make-sparse-keymap)))
-      (local-set-key (kbd "q")  'zettel-dismiss-tags-buffer)
-      (local-set-key (kbd "<return>") 'zettel-follow-or-insert-newline)
-      (local-set-key (kbd "M-n") 'zettel-next-thing-in-buffer)
-      (local-set-key (kbd "M-p") 'zettel-prev-thing-in-buffer)
-      (switch-to-buffer zettel-tags-buffer-name))))
+
+
+
+
+(defun zettel-browse-tags (tag)
+  (interactive
+   (list (completing-read "Tag: " (zettel-all-tags))))
+  (zettel-show-notes-by-tag tag))
+
+(defun zettel-set-tag-filter-string (filter)
+  (interactive "sTag Search:")
+  (setq *zettel-tag-filter-string* (downcase filter))
+  (zettel-browse-tags))
 
 (defun zettel ()
   (interactive)
