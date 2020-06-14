@@ -21,6 +21,9 @@ Here are the commands that you'll want to bind to suit your needs:
   note you are currently looking at.
 - ~zettel-jump-back~ jumps back to the last note you were looking at
 - ~zettel-browse-notes~ search for a note by title, using emacs' ~completing-read~
+- ~zettel-browse-notes-days-ago~ shows notes that were touched in the
+  last few days, you supply the period of time. Good for reviewing
+  your week of thought.
 
 I have each of the above bound to suit my needs in my
 =.emacs.d/init.el= file.
