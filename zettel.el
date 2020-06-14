@@ -238,14 +238,15 @@
                                "-" "-")))
     (find-file (concat zettel-directory "/" new-note ".zettel"))))
 
-
-
-
-
 (defun zettel-browse-tags (tag)
   (interactive
    (list (completing-read "Tag: " (zettel-all-tags))))
   (zettel-show-notes-by-tag tag))
+
+(defun zettel-browse-notes (note)
+  (interactive
+   (list (completing-read "Note: " (zettel-link-names))))
+  (find-zettel-file note))
 
 (defun zettel-set-tag-filter-string (filter)
   (interactive "sTag Search:")
