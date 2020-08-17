@@ -92,11 +92,15 @@
     (push buffer-file-name zettel-history)
     (save-buffer)))
 
-(defun find-zettel-file (thing)
-  (when (valid-zettel-note-name-p thing)
-    (zettel-push-to-history)
-    (find-file (zettel-link-to-file-path thing))
-    t))
+(defun find-zettel-file (thing &optional make-new)
+  (cond ((valid-zettel-note-name-p thing)
+         (zettel-push-to-history)
+         (find-file (zettel-link-to-file-path thing))
+         t)
+        (make-new
+         (zettel-spanking-new-note thing)
+         t)
+        (t nil)))
 
 (defun zettel-file-contains-p (thing file)
   (when (file-exists-p file)
@@ -246,7 +250,7 @@
 (defun zettel-browse-notes (note)
   (interactive
    (list (completing-read "Note: " (zettel-link-names))))
-  (find-zettel-file note))
+   (find-zettel-file note))
 
 (defun zettel-set-tag-filter-string (filter)
   (interactive "sTag Search:")
