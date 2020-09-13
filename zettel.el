@@ -1,4 +1,6 @@
 
+(require 'cl-lib)
+
 (defvar zettel-directory "~/zettel/")
 (defvar zettel-tags-buffer-name "*zettel-tags*")
 (defvar zettel-history '())
@@ -20,8 +22,8 @@
 
 
 (defun filename-to-zettel-name (path)
-  (let* ((fname (first (last (split-string path "[/]"))))
-         (less-extension (subseq fname 0 (- (length fname)
+  (let* ((fname (cl-first (last (split-string path "[/]"))))
+         (less-extension (cl-subseq fname 0 (- (length fname)
                                             (1+ (position ?. (reverse fname)))))))
     (concat "|"
             less-extension
@@ -48,7 +50,7 @@
 (defun zettel-all-tags ()
   (if zettel-tag-cache zettel-tag-cache
     (setq zettel-tag-cache
-          (sort (remove-duplicates
+          (sort (cl-remove-duplicates
                  (apply 'append
                         (mapcar 'zettel-tags-in-file  (zettel-all-files)))
                  :test 'equal)
