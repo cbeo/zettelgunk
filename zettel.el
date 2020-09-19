@@ -24,7 +24,7 @@
 (defun filename-to-zettel-name (path)
   (let* ((fname (cl-first (last (split-string path "[/]"))))
          (less-extension (cl-subseq fname 0 (- (length fname)
-                                            (1+ (position ?. (reverse fname)))))))
+                                            (1+ (cl-position ?. (reverse fname)))))))
     (concat "|"
             less-extension
             "|")))
