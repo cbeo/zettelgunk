@@ -107,7 +107,7 @@
 (defun zettel-file-contains-p (thing file)
   (when (file-exists-p file)
     (let ((file-string (zettel-file-to-string file)))
-      (search thing file-string))))
+      (cl-search thing file-string))))
 
 (defun zettel-show-notes-by (thing file-pred  message)
   "FILE-PRED should take two arguments, the first is 'thing' and the second is a file path."
