@@ -252,7 +252,7 @@
 (defun zettel-browse-notes (note)
   (interactive
    (list (completing-read "Note: " (zettel-link-names))))
-   (find-zettel-file note))
+   (find-zettel-file note t))
 
 (defun zettel-set-tag-filter-string (filter)
   (interactive "sTag Search:")
